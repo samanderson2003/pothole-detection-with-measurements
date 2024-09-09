@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Storage Image Listing</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        
+        /* Basic styles for the card container */
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Styles for individual cards */
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 200px;
+            text-align: center;
+            background: #fff;
+        }
+
+        .card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .card-title {
+            padding: 10px;
+            font-size: 16px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="index.html">Pothole Detector</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="detected_images.html">Detected Images</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="images_data.html">Images Data</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+<h1>Images from Firebase Storage</h1>
+<div id="image-list" class="card-container"></div>
+
+<!-- Firebase Modules -->
+<script type="module">
+    // Import necessary functions from Firebase SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+    import { getStorage, ref, listAll, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-storage.js";
+
+    // Firebase configuration (replace with your own credentials)
+    const firebaseConfig = {
+        apiKey: "AIzaSyBMNlbfoIs1IFhLG7tDDyGM5otmcHIQ9Zw",
+        authDomain: "potholehunter-175ce.firebaseapp.com",
+        databaseURL: "https://potholehunter-175ce-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "potholehunter-175ce",
+        storageBucket: "potholehunter-175ce.appspot.com",
+        messagingSenderId: "814332522297",
+        appId: "1:814332522297:web:156fb9d546f2c4daf282e8",
+        measurementId: "G-VM8G79ZPNM"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+
+    // Get reference to Firebase storage
+    const storage = getStorage(app);
+
+    // Reference to the 'images/' folder in Firebase Storage
+    const storageRef = ref(storage, 'frames/');
+
+    // List all items (images) in the 'images/' folder
+    listAll(storageRef)
+        .then((result) => {
+            result.items.forEach((itemRef) => {
+                // Get the download URL for each image
+                getDownloadURL(itemRef).then((url) => {
+                    // Create a card element
+                    const card = document.createElement('div');
+                    card.className = 'card';
+
+                    // Create an image element
+                    const img = document.createElement('img');
+                    img.src = url;
+
+                    // Create a title element (optional)
+                    const title = document.createElement('div');
+                    title.className = 'card-title';
+                    title.textContent = 'Image'; // You can customize this text
+
+                    // Append image and title to the card
+                    card.appendChild(img);
+                    card.appendChild(title);
+
+                    // Append card to the image list container
+                    document.getElementById('image-list').appendChild(card);
+                });
+            });
+        })
+        .catch((error) => {
+            console.error('Error fetching image list:', error);
+        });
+
+        function fetchData() {
+            const framesContainer = document.getElementById('frames');
+            database.ref('pothole-detections').once('value', (snapshot) => {
+                snapshot.forEach((childSnapshot) => {
+                    const data = childSnapshot.val();
+                    imgElement.alt = 'Pothole Frame';
+
+                    const details = document.createElement('p');
+                    details.innerHTML = 'Estimated Size: ${data.estimated_size_cm2.toFixed(2)} cm²<br>Detection Time: ${data.detection_time}';
+
+                    frameContainer.appendChild(imgElement);
+                    frameContainer.appendChild(details);
+
+                    framesContainer.appendChild(frameContainer);
+                });
+            });
+        }
+
+</script>
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
